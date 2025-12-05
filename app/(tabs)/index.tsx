@@ -1,11 +1,22 @@
+import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
+  const [categories, setCategories] = useState<string[]>([
+    "이비인후과",
+    "내과",
+    "성형외과",
+    "신경과",
+    "안과",
+    "정형외과",
+    "피부과",
+  ]);
   return (
     <ScrollView>
       <View>
         <Text>홈화면</Text>
       </View>
+      <View></View>
     </ScrollView>
   );
 }
