@@ -16,7 +16,20 @@ export default function HomeScreen() {
       <View>
         <Text>홈화면</Text>
       </View>
-      <View></View>
+      <View>
+        {/* 보여지는곳(tag) 에서 프로그래밍을 하고싶다?
+         { }   대괄호 써야함 
+        categories?.length && := categories 데이터 있니?
+        있으면 categories 를 forloop 처리해서 보여줘
+             */}
+        {categories?.length &&
+          categories.map((item) => {
+            /* categories 에서 하나 꺼내서 item에 담고,
+            <View>{item}</View> 요런식으로 보여줘라
+             */
+            return <View>{item}</View>;
+          })}
+      </View>
     </ScrollView>
   );
 }
