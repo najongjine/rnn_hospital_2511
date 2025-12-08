@@ -7,7 +7,7 @@ export default function Search() {
   return (
     <ScrollView>
       <View>
-        <Text>검색화면</Text>
+        <Text>검색화면, 넘겨받은 데이터: {category}</Text>
       </View>
     </ScrollView>
   );

@@ -45,6 +45,7 @@ export default function HomeScreen() {
              */
             return (
               <TouchableOpacity
+                key={index}
                 onPress={() => {
                   router.push({
                     pathname: "/Search",
@@ -52,7 +53,7 @@ export default function HomeScreen() {
                   });
                 }}
               >
-                <View key={index}>
+                <View>
                   <Text>{item}</Text>
                 </View>
               </TouchableOpacity>
