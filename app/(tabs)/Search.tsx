@@ -1,6 +1,9 @@
+import { useLocalSearchParams } from "expo-router";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function Search() {
+  const queryString = useLocalSearchParams();
+  const category = queryString?.category ?? "";
   return (
     <ScrollView>
       <View>

@@ -1,5 +1,13 @@
+import { router } from "expo-router";
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
   const [categories, setCategories] = useState<string[]>([
@@ -35,7 +43,20 @@ export default function HomeScreen() {
             /* categories 에서 하나 꺼내서 item에 담고,
             <View>{item}</View> 요런식으로 보여줘라
              */
-            return <View key={index}>{item}</View>;
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  router.push({
+                    pathname: "/Search",
+                    params: { category: String(item) },
+                  });
+                }}
+              >
+                <View key={index}>
+                  <Text>{item}</Text>
+                </View>
+              </TouchableOpacity>
+            );
           })}
       </View>
     </ScrollView>
