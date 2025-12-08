@@ -11,6 +11,8 @@ export default function HomeScreen() {
     "정형외과",
     "피부과",
   ]);
+  let a = {};
+
   return (
     <ScrollView>
       <View>
