@@ -22,7 +22,7 @@ export default function Search() {
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location);
 
-    if (category) {
+    if (category && location) {
       await getHospital();
     }
   }
