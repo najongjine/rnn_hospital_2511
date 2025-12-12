@@ -7,7 +7,7 @@ export default function Search() {
   const apiUrl = process.env.EXPO_PUBLIC_HONO_API_BASEURL;
   const queryString = useLocalSearchParams();
   const category = queryString?.category ?? "";
-
+  /** longitute : x, latitute : y */
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
@@ -26,8 +26,8 @@ export default function Search() {
   async function getHospital() {
     const params = new URLSearchParams();
     params.append("query", String(category)); // 사용자 검색어
-    params.append("x", ""); // longitute
-    params.append("y", ""); // langitute
+    params.append("x", String(location?.coords?.longitude ?? "")); // longitute
+    params.append("y", String(location?.coords?.latitude ?? "")); // langitute
 
     const response = await fetch(`${apiUrl}?${params}`, {
       method: "GET",
