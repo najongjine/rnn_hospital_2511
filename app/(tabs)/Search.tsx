@@ -21,20 +21,25 @@ export default function Search() {
     }
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location);
+
+    if (category) {
+      await getHospital();
+    }
   }
 
-  async function getHospital() {
+  async function getHospital(query: string = "") {
     const params = new URLSearchParams();
-    params.append("query", String(category)); // 사용자 검색어
+    params.append("query", String(query)); // 사용자 검색어
     params.append("x", String(location?.coords?.longitude ?? "")); // longitute
     params.append("y", String(location?.coords?.latitude ?? "")); // langitute
 
-    const response = await fetch(`${apiUrl}?${params}`, {
+    const response = await fetch(`${apiUrl}/api/hospital?${params}`, {
       method: "GET",
       headers: {},
     });
 
     let _data = await response.json();
+    console.log(`get hospital _data: `, _data);
   }
 
   useFocusEffect(
