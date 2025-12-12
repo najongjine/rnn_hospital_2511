@@ -1,6 +1,6 @@
-import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams } from "expo-router";
-import { useCallback } from "react";
+import * as Location from "expo-location";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function Search() {
@@ -8,11 +8,26 @@ export default function Search() {
   const queryString = useLocalSearchParams();
   const category = queryString?.category ?? "";
 
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  async function getCurrentLocation() {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
+      return;
+    }
+    let location = await Location.getCurrentPositionAsync({});
+    setLocation(location);
+  }
+
   async function getHospital() {
     const params = new URLSearchParams();
     params.append("query", String(category)); // 사용자 검색어
-    params.append("x", x); // longitute
-    params.append("y", y); // langitute
+    params.append("x", ""); // longitute
+    params.append("y", ""); // langitute
 
     const response = await fetch(`${apiUrl}?${params}`, {
       method: "GET",
@@ -24,6 +39,7 @@ export default function Search() {
 
   useFocusEffect(
     useCallback(() => {
+      getCurrentLocation();
       // return (
       // 	//화면에서 포커싱이 떠났을 때 실행시킬 내용을 작성
       // );
@@ -34,6 +50,12 @@ export default function Search() {
     <ScrollView>
       <View>
         <Text>검색화면, 넘겨받은 데이터: {category}</Text>
+      </View>
+      <View>
+        <Text>{errorMsg}</Text>
+      </View>
+      <View>
+        <Text>{JSON.stringify(location)}</Text>
       </View>
       <View>
         <TextInput placeholder="검색어 입력" />
