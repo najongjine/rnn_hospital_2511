@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 export default function Search() {
   const apiUrl = process.env.EXPO_PUBLIC_HONO_API_BASEURL;
   const queryString = useLocalSearchParams();
-  const category = queryString?.category ?? "";
+  const category = String(queryString?.category ?? "");
   /** longitute : x, latitute : y */
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
@@ -23,11 +23,14 @@ export default function Search() {
     setLocation(location);
 
     if (category && location) {
-      await getHospital();
+      await getHospital(category, location);
     }
   }
 
-  async function getHospital(query: string = "") {
+  async function getHospital(
+    query: string = "",
+    location: Location.LocationObject | null = null
+  ) {
     const params = new URLSearchParams();
     params.append("query", String(query)); // 사용자 검색어
     params.append("x", String(location?.coords?.longitude ?? "")); // longitute
