@@ -7,7 +7,7 @@ import { KakaoPlaceType } from "../types/types";
 export default function Search() {
   const apiUrl = process.env.EXPO_PUBLIC_HONO_API_BASEURL;
   const queryString = useLocalSearchParams();
-  const category = String(queryString?.category ?? "");
+  const searchKeyword = String(queryString?.searchKeyword ?? "");
   /** longitute : x, latitute : y */
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
@@ -25,8 +25,8 @@ export default function Search() {
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location);
 
-    if (category && location) {
-      await getHospital(category, location);
+    if (searchKeyword && location) {
+      await getHospital(searchKeyword, location);
     }
   }
 
@@ -54,13 +54,13 @@ export default function Search() {
       // return (
       // 	//화면에서 포커싱이 떠났을 때 실행시킬 내용을 작성
       // );
-    }, [category])
+    }, [searchKeyword])
   );
 
   return (
     <ScrollView>
       <View>
-        <Text>검색화면, 넘겨받은 데이터: {JSON.stringify(kakaoPlace)}</Text>
+        <Text>검색화면, 넘겨받은 데이터: </Text>
       </View>
       <View>
         <Text>{errorMsg}</Text>
