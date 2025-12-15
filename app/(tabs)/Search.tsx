@@ -60,7 +60,7 @@ export default function Search() {
   return (
     <ScrollView>
       <View>
-        <Text>검색화면, 넘겨받은 데이터: </Text>
+        <Text>검색화면, 넘겨받은 데이터: {searchKeyword} </Text>
       </View>
       <View>
         <Text>{errorMsg}</Text>
@@ -72,7 +72,7 @@ export default function Search() {
         {kakaoPlace?.length &&
           kakaoPlace.map((item, index) => {
             return (
-              <View>
+              <View key={index}>
                 <Text>
                   {item?.place_name}, &nbsp;&nbsp;
                   {item?.distance},&nbsp;&nbsp;
