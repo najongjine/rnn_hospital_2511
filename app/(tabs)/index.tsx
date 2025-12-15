@@ -49,7 +49,7 @@ export default function HomeScreen() {
                 onPress={() => {
                   router.push({
                     pathname: "/Search",
-                    params: { category: String(item) },
+                    params: { searchKeyword: String(item) },
                   });
                 }}
               >
