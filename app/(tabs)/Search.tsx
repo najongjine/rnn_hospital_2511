@@ -66,10 +66,17 @@ export default function Search() {
         <Text>{errorMsg}</Text>
       </View>
       <View>
-        <Text>{JSON.stringify(location)}</Text>
+        <TextInput placeholder="검색어 입력" />
       </View>
       <View>
-        <TextInput placeholder="검색어 입력" />
+        {kakaoPlace?.length &&
+          kakaoPlace.map((item, index) => {
+            return (
+              <View>
+                <Text></Text>
+              </View>
+            );
+          })}
       </View>
     </ScrollView>
   );
