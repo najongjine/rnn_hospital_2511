@@ -16,6 +16,7 @@ export default function Search() {
   const queryString = useLocalSearchParams();
   const searchKeyword = String(queryString?.searchKeyword ?? "");
   /** longitute : x, latitute : y */
+
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
