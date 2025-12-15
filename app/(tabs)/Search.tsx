@@ -45,7 +45,7 @@ export default function Search() {
     });
 
     let _data = await response.json();
-    console.log(`get hospital _data: `, _data);
+    setKakaoPlace(_data);
   }
 
   useFocusEffect(
@@ -60,7 +60,7 @@ export default function Search() {
   return (
     <ScrollView>
       <View>
-        <Text>검색화면, 넘겨받은 데이터: {category}</Text>
+        <Text>검색화면, 넘겨받은 데이터: {JSON.stringify(kakaoPlace)}</Text>
       </View>
       <View>
         <Text>{errorMsg}</Text>
