@@ -2,6 +2,7 @@ import * as Location from "expo-location";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KakaoPlaceType } from "../types/types";
 
 export default function Search() {
   const apiUrl = process.env.EXPO_PUBLIC_HONO_API_BASEURL;
@@ -12,6 +13,8 @@ export default function Search() {
     null
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const [kakaoPlace, setKakaoPlace] = useState<KakaoPlaceType[]>([]);
 
   async function getCurrentLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
