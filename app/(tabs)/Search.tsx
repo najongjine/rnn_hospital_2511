@@ -45,7 +45,7 @@ export default function Search() {
     });
 
     let _data = await response.json();
-    setKakaoPlace(_data);
+    setKakaoPlace(_data?.data);
   }
 
   useFocusEffect(
@@ -73,7 +73,8 @@ export default function Search() {
           kakaoPlace.map((item, index) => {
             return (
               <View>
-                <Text></Text>
+                <Text>{item?.place_name}, dfdfd</Text>
+                <Text>&nbsp; sdsds</Text>
               </View>
             );
           })}
