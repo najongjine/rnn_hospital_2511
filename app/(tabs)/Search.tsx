@@ -1,7 +1,14 @@
 import * as Location from "expo-location";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { KakaoPlaceType } from "../types/types";
 
 export default function Search() {
@@ -48,6 +55,10 @@ export default function Search() {
     setKakaoPlace(_data?.data);
   }
 
+  async function onSearch() {
+    /** 검색 버튼 누르면, 검색된 병원 나오게 하기 */
+  }
+
   useFocusEffect(
     useCallback(() => {
       getCurrentLocation();
@@ -63,10 +74,15 @@ export default function Search() {
         <Text>검색화면, 넘겨받은 데이터: {searchKeyword} </Text>
       </View>
       <View>
+        <Text>lat: {location?.coords.latitude} </Text>
+        <Text>long: {location?.coords.longitude} </Text>
+      </View>
+      <View>
         <Text>{errorMsg}</Text>
       </View>
       <View>
         <TextInput placeholder="검색어 입력" />
+        <Button title="검색" onPress={onSearch} />
       </View>
       <View>
         {kakaoPlace?.length &&
