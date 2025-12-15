@@ -73,8 +73,12 @@ export default function Search() {
           kakaoPlace.map((item, index) => {
             return (
               <View>
-                <Text>{item?.place_name}, dfdfd</Text>
-                <Text>&nbsp; sdsds</Text>
+                <Text>
+                  {item?.place_name}, &nbsp;&nbsp;
+                  {item?.distance},&nbsp;&nbsp;
+                  {item?.road_address_name}
+                </Text>
+                <Text> </Text>
               </View>
             );
           })}
