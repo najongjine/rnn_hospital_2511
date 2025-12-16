@@ -61,7 +61,8 @@ export default function Search() {
 
   async function onSearch() {
     /** 검색 버튼 누르면, 검색된 병원 나오게 하기 */
-    getHospital(searchKeyword, location);
+    alert(`onSearch : ${searchText}`);
+    getHospital(searchText, location);
   }
 
   useFocusEffect(
@@ -76,7 +77,7 @@ export default function Search() {
   return (
     <ScrollView>
       <View>
-        <Text>검색화면, 넘겨받은 데이터: {searchKeyword} </Text>
+        <Text>검색화면, 넘겨받은 데이터: {searchText} </Text>
       </View>
       <View>
         <Text>lat: {location?.coords.latitude} </Text>
