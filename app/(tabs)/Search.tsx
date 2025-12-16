@@ -24,6 +24,9 @@ export default function Search() {
 
   const [kakaoPlace, setKakaoPlace] = useState<KakaoPlaceType[]>([]);
 
+  // 1. **검색어 상태 추가**
+  const [searchText, setSearchText] = useState<string>(searchKeyword ?? "");
+
   async function getCurrentLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -58,6 +61,7 @@ export default function Search() {
 
   async function onSearch() {
     /** 검색 버튼 누르면, 검색된 병원 나오게 하기 */
+    getHospital(searchKeyword, location);
   }
 
   useFocusEffect(
@@ -82,7 +86,12 @@ export default function Search() {
         <Text>{errorMsg}</Text>
       </View>
       <View>
-        <TextInput placeholder="검색어 입력" />
+        {/* 2. **TextInput에 검색어 상태 연결** */}
+        <TextInput
+          placeholder="검색어 입력"
+          value={searchText}
+          onChangeText={setSearchText} // 입력될 때마다 searchText 업데이트
+        />
         <Button title="검색" onPress={onSearch} />
       </View>
       <View>
