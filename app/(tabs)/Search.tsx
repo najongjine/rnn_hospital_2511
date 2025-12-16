@@ -105,7 +105,7 @@ export default function Search() {
                 onPress={() => {
                   router.push({
                     pathname: "/Detail",
-                    params: { kakaoPlaceId: item?.id ?? 0 },
+                    params: { kakaoPlace: JSON.stringify(item) },
                   });
                 }}
               >

@@ -1,6 +1,9 @@
+import { useLocalSearchParams } from "expo-router";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function Detail() {
+  const queryString = useLocalSearchParams();
+  const kakaoPlaceId = String(queryString?.kakaoPlaceId ?? "");
   return (
     <ScrollView>
       <View>
