@@ -4,7 +4,7 @@ import { KakaoPlaceType } from "../types/types";
 
 export default function Detail() {
   const queryString = useLocalSearchParams();
-  const kakaoPlaceId = JSON.parse(
+  const kakaoPlace = JSON.parse(
     String(queryString?.kakaoPlace ?? "")
   ) as KakaoPlaceType;
   return (
