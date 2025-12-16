@@ -100,9 +100,10 @@ export default function Search() {
           kakaoPlace.map((item, index) => {
             return (
               <View key={index}>
+                {/* 목록 누르면 detail 페이지로 가는데, item?.id 도 같이 보내세요  */}
                 <Text>
                   {item?.place_name}, &nbsp;&nbsp;
-                  {item?.distance},&nbsp;&nbsp;
+                  {`${item?.distance}m`},&nbsp;&nbsp;
                   {item?.road_address_name}
                 </Text>
                 <Text> </Text>
