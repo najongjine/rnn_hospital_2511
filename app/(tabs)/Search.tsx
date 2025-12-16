@@ -1,5 +1,5 @@
 import * as Location from "expo-location";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   Button,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { KakaoPlaceType } from "../types/types";
@@ -99,15 +100,25 @@ export default function Search() {
         {kakaoPlace?.length &&
           kakaoPlace.map((item, index) => {
             return (
-              <View key={index}>
-                {/* 목록 누르면 detail 페이지로 가는데, item?.id 도 같이 보내세요  */}
-                <Text>
-                  {item?.place_name}, &nbsp;&nbsp;
-                  {`${item?.distance}m`},&nbsp;&nbsp;
-                  {item?.road_address_name}
-                </Text>
-                <Text> </Text>
-              </View>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  router.push({
+                    pathname: "/Detail",
+                    params: { kakaoPlaceId: item?.id ?? 0 },
+                  });
+                }}
+              >
+                <View key={index}>
+                  {/* 목록 누르면 detail 페이지로 가는데, item?.id 도 같이 보내세요  */}
+                  <Text>
+                    {item?.place_name}, &nbsp;&nbsp;
+                    {`${item?.distance}m`},&nbsp;&nbsp;
+                    {item?.road_address_name}
+                  </Text>
+                  <Text> </Text>
+                </View>
+              </TouchableOpacity>
             );
           })}
       </View>
