@@ -1,8 +1,10 @@
+import { Ionicons } from "@expo/vector-icons"; // 아이콘 사용을 위해 추가
 import * as Location from "expo-location";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Button,
+  ActivityIndicator,
+  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,26 +14,27 @@ import {
 } from "react-native";
 import { KakaoPlaceType } from "../types/types";
 
+const { width } = Dimensions.get("window");
+
 export default function Search() {
   const apiUrl = process.env.EXPO_PUBLIC_HONO_API_BASEURL;
   const queryString = useLocalSearchParams();
   const searchKeyword = String(queryString?.searchKeyword ?? "");
-  /** longitute : x, latitute : y */
 
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const [kakaoPlace, setKakaoPlace] = useState<KakaoPlaceType[]>([]);
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
-  // 1. **검색어 상태 추가**
+  // 검색어 상태
   const [searchText, setSearchText] = useState<string>(searchKeyword ?? "");
 
   async function getCurrentLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
-      setErrorMsg("Permission to access location was denied");
+      setErrorMsg("위치 권한이 거부되었습니다.");
       return;
     }
     let location = await Location.getCurrentPositionAsync({});
@@ -46,62 +49,104 @@ export default function Search() {
     query: string = "",
     location: Location.LocationObject | null = null
   ) {
-    const params = new URLSearchParams();
-    params.append("query", String(query)); // 사용자 검색어
-    params.append("x", String(location?.coords?.longitude ?? "")); // longitute
-    params.append("y", String(location?.coords?.latitude ?? "")); // langitute
+    if (!query) return;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.append("query", String(query));
+      params.append("x", String(location?.coords?.longitude ?? ""));
+      params.append("y", String(location?.coords?.latitude ?? ""));
 
-    const response = await fetch(`${apiUrl}/api/hospital?${params}`, {
-      method: "GET",
-      headers: {},
-    });
+      const response = await fetch(`${apiUrl}/api/hospital?${params}`, {
+        method: "GET",
+        headers: {},
+      });
 
-    let _data = await response.json();
-    setKakaoPlace(_data?.data);
+      let _data = await response.json();
+      setKakaoPlace(_data?.data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function onSearch() {
-    /** 검색 버튼 누르면, 검색된 병원 나오게 하기 */
-    alert(`onSearch : ${searchText}`);
     getHospital(searchText, location);
   }
 
   useFocusEffect(
     useCallback(() => {
       getCurrentLocation();
-      // return (
-      // 	//화면에서 포커싱이 떠났을 때 실행시킬 내용을 작성
-      // );
     }, [searchKeyword])
   );
 
   return (
-    <ScrollView>
-      <View>
-        <Text>검색화면, 넘겨받은 데이터: {searchText} </Text>
+    <View style={styles.container}>
+      {/* 1. 상단 검색바 영역 */}
+      <View style={styles.searchHeader}>
+        <View style={styles.inputContainer}>
+          <Ionicons
+            name="search"
+            size={20}
+            color="#888"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="병원, 약국 검색"
+            placeholderTextColor="#AAA"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={onSearch} // 키보드 완료 버튼 누를 시 검색
+            returnKeyType="search"
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={onSearch}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.searchButtonText}>검색</Text>
+        </TouchableOpacity>
       </View>
-      <View>
-        <Text>lat: {location?.coords.latitude} </Text>
-        <Text>long: {location?.coords.longitude} </Text>
-      </View>
-      <View>
-        <Text>{errorMsg}</Text>
-      </View>
-      <View>
-        {/* 2. **TextInput에 검색어 상태 연결** */}
-        <TextInput
-          placeholder="검색어 입력"
-          value={searchText}
-          onChangeText={setSearchText} // 입력될 때마다 searchText 업데이트
-        />
-        <Button title="검색" onPress={onSearch} />
-      </View>
-      <View>
-        {kakaoPlace?.length &&
+
+      {/* 에러 메시지 표시 */}
+      {errorMsg && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{errorMsg}</Text>
+        </View>
+      )}
+
+      {/* 2. 결과 리스트 영역 */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 로딩 인디케이터 */}
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#1E88E5" />
+          </View>
+        )}
+
+        {/* 결과가 없을 때 안내 문구 */}
+        {!loading && kakaoPlace.length === 0 && (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="medkit-outline" size={48} color="#DDD" />
+            <Text style={styles.emptyText}>검색 결과가 없습니다.</Text>
+            <Text style={styles.emptySubText}>다른 키워드로 검색해보세요.</Text>
+          </View>
+        )}
+
+        {/* 리스트 아이템 */}
+        {kakaoPlace?.length > 0 &&
           kakaoPlace.map((item, index) => {
             return (
               <TouchableOpacity
+                key={index}
                 activeOpacity={0.7}
+                style={styles.card}
                 onPress={() => {
                   router.push({
                     pathname: "/Detail",
@@ -109,32 +154,173 @@ export default function Search() {
                   });
                 }}
               >
-                <View key={index}>
-                  {/* 목록 누르면 detail 페이지로 가는데, item?.id 도 같이 보내세요  */}
-                  <Text>
-                    {item?.place_name}, &nbsp;&nbsp;
-                    {`${item?.distance}m`},&nbsp;&nbsp;
-                    {item?.road_address_name}
+                <View style={styles.cardHeader}>
+                  <Text style={styles.placeName} numberOfLines={1}>
+                    {item?.place_name}
                   </Text>
-                  <Text> </Text>
+                  <View style={styles.distanceBadge}>
+                    <Text style={styles.distanceText}>
+                      {item?.distance ? `${item.distance}m` : "거리정보 없음"}
+                    </Text>
+                  </View>
                 </View>
+
+                <View style={styles.infoRow}>
+                  <Ionicons
+                    name="location-outline"
+                    size={14}
+                    color="#666"
+                    style={{ marginTop: 2 }}
+                  />
+                  <Text style={styles.addressText} numberOfLines={1}>
+                    {item?.road_address_name ||
+                      item?.address_name ||
+                      "주소 정보 없음"}
+                  </Text>
+                </View>
+
+                {/* 전화번호가 있다면 표시 (데이터에 phone이 있다고 가정 시 추가 가능) */}
+                {/* <Text style={styles.phoneText}>{item.phone}</Text> */}
               </TouchableOpacity>
             );
           })}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  container: {
+    flex: 1,
+    backgroundColor: "#F8F9FA",
   },
-  titleContainer: {
+
+  // Search Header Styles
+  searchHeader: {
     flexDirection: "row",
-    gap: 8,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F4F6",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 46,
+    marginRight: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+    height: "100%",
+  },
+  searchButton: {
+    backgroundColor: "#1E88E5", // 메인 블루 컬러
+    paddingHorizontal: 16,
+    height: 46,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchButtonText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  // Error & Empty State
+  errorContainer: {
+    padding: 10,
+    backgroundColor: "#FFEBEE",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 14,
+  },
+  loadingContainer: {
+    marginTop: 50,
+    alignItems: "center",
+  },
+  emptyContainer: {
+    marginTop: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#888",
+    marginTop: 16,
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: "#AAA",
+    marginTop: 8,
+  },
+
+  // List Styles
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    // 카드 그림자
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  placeName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#333",
+    flex: 1, // 이름이 길 경우 말줄임표 처리를 위해 flex 사용
+    marginRight: 10,
+  },
+  distanceBadge: {
+    backgroundColor: "#E3F2FD",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  distanceText: {
+    color: "#1E88E5",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  addressText: {
+    fontSize: 14,
+    color: "#666",
+    marginLeft: 4,
+    flex: 1,
   },
 });
