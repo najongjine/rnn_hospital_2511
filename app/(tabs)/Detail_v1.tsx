@@ -1,24 +1,24 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons"; // 아이콘 사용
 import { useLocalSearchParams } from "expo-router";
 import {
   Linking,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { WebView } from "react-native-webview";
 import { KakaoPlaceType } from "../types/types";
 
 export default function Detail() {
-  // ... (이전 코드와 동일: 데이터 파싱 및 에러 처리) ...
   const queryString = useLocalSearchParams();
+  // 데이터 파싱 시 에러 방지를 위해 try-catch 혹은 안전한 파싱 처리가 좋지만,
+  // 기존 로직을 유지하며 디자인에 집중하겠습니다.
   const kakaoPlace = queryString?.kakaoPlace
     ? (JSON.parse(String(queryString.kakaoPlace)) as KakaoPlaceType)
     : null;
 
+  // 데이터가 없을 경우 예외 처리 화면
   if (!kakaoPlace) {
     return (
       <View style={styles.errorContainer}>
@@ -27,16 +27,19 @@ export default function Detail() {
     );
   }
 
+  // 전화 걸기 기능
   const handleCall = () => {
-    if (kakaoPlace.phone) Linking.openURL(`tel:${kakaoPlace.phone}`);
+    if (kakaoPlace.phone) {
+      Linking.openURL(`tel:${kakaoPlace.phone}`);
+    }
   };
 
+  // 웹사이트 이동 기능
   const handleOpenWeb = () => {
-    if (kakaoPlace.place_url) Linking.openURL(kakaoPlace.place_url);
+    if (kakaoPlace.place_url) {
+      Linking.openURL(kakaoPlace.place_url);
+    }
   };
-
-  // 지도 URL
-  const mapUrl = kakaoPlace.place_url || "https://map.kakao.com";
 
   return (
     <ScrollView
@@ -44,7 +47,7 @@ export default function Detail() {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
-      {/* 1. 헤더 섹션 (동일) */}
+      {/* 1. 헤더 섹션: 병원 이름과 거리 */}
       <View style={styles.headerSection}>
         <Text style={styles.title}>{kakaoPlace.place_name}</Text>
         <View style={styles.badgeContainer}>
@@ -58,7 +61,7 @@ export default function Detail() {
         </View>
       </View>
 
-      {/* 2. 액션 버튼 (동일) */}
+      {/* 2. 메인 액션 버튼 (전화걸기 / 웹사이트) */}
       <View style={styles.actionRow}>
         <TouchableOpacity
           style={[styles.actionButton, styles.callButton]}
@@ -79,9 +82,9 @@ export default function Detail() {
         </TouchableOpacity>
       </View>
 
-      {/* 3. 상세 정보 리스트 (동일) */}
+      {/* 3. 상세 정보 리스트 섹션 */}
       <View style={styles.infoSection}>
-        {/* ... (기존 infoRow 코드들 동일) ... */}
+        {/* 주소 */}
         <View style={styles.infoRow}>
           <View style={styles.iconContainer}>
             <Ionicons name="location-outline" size={22} color="#666" />
@@ -91,40 +94,53 @@ export default function Detail() {
             <Text style={styles.infoValue}>{kakaoPlace.address_name}</Text>
           </View>
         </View>
-        {/* ... */}
-      </View>
 
-      {/* 4. [수정됨] 지도 보기 섹션 (웹/앱 분기 처리) */}
-      <View style={styles.mapSection}>
-        <Text style={styles.sectionTitle}>위치 확인</Text>
-        <View style={styles.mapContainer}>
-          {Platform.OS === "web" ? (
-            // [웹일 경우] iframe 사용
-            <iframe
-              src={mapUrl}
-              style={{ width: "100%", height: "100%", border: "none" }}
-              title="hospital-map"
+        <View style={styles.divider} />
+
+        {/* 전화번호 (텍스트 뷰) */}
+        <View style={styles.infoRow}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="call-outline" size={22} color="#666" />
+          </View>
+          <View style={styles.infoTextContainer}>
+            <Text style={styles.infoLabel}>전화번호</Text>
+            <Text style={styles.infoValue}>
+              {kakaoPlace.phone || "정보 없음"}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        {/* 홈페이지 (텍스트 뷰) */}
+        <View style={styles.infoRow}>
+          <View style={styles.iconContainer}>
+            <Ionicons
+              name="information-circle-outline"
+              size={22}
+              color="#666"
             />
-          ) : (
-            // [앱일 경우] WebView 사용
-            <WebView
-              source={{ uri: mapUrl }}
-              style={{ flex: 1 }}
-              nestedScrollEnabled={true}
-            />
-          )}
+          </View>
+          <View style={styles.infoTextContainer}>
+            <Text style={styles.infoLabel}>상세 정보</Text>
+            <Text
+              style={styles.infoValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {kakaoPlace.place_url || "정보 없음"}
+            </Text>
+          </View>
         </View>
       </View>
     </ScrollView>
   );
 }
 
-// ... styles는 기존과 동일 ...
 const styles = StyleSheet.create({
-  // ... 기존 스타일 그대로 유지 ...
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#F9FAFB", // 아주 연한 회색 배경 (눈이 편안함)
   },
   contentContainer: {
     paddingHorizontal: 20,
@@ -136,8 +152,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  errorText: { color: "#666", fontSize: 16 },
-  headerSection: { marginBottom: 24 },
+  errorText: {
+    color: "#666",
+    fontSize: 16,
+  },
+
+  // 헤더 스타일
+  headerSection: {
+    marginBottom: 24,
+  },
   title: {
     fontSize: 26,
     fontWeight: "700",
@@ -145,15 +168,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     letterSpacing: -0.5,
   },
-  badgeContainer: { flexDirection: "row" },
+  badgeContainer: {
+    flexDirection: "row",
+  },
   badge: {
-    backgroundColor: "#EBF5FF",
+    backgroundColor: "#EBF5FF", // 연한 파란색 뱃지
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
   },
-  badgeText: { color: "#2563EB", fontSize: 13, fontWeight: "600" },
-  actionRow: { flexDirection: "row", gap: 12, marginBottom: 32 },
+  badgeText: {
+    color: "#2563EB", // 파란색 텍스트
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  // 액션 버튼 스타일
+  actionRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 32,
+  },
   actionButton: {
     flex: 1,
     flexDirection: "row",
@@ -162,69 +197,72 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
+    // 그림자 효과 (Android + iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  callButton: { backgroundColor: "#2563EB" },
-  callButtonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  callButton: {
+    backgroundColor: "#2563EB", // 메인 브랜드 컬러 (신뢰감을 주는 블루)
+  },
+  callButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   webButton: {
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-  webButtonText: { color: "#374151", fontSize: 16, fontWeight: "600" },
+  webButtonText: {
+    color: "#374151",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // 정보 섹션 스타일
   infoSection: {
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
+    // 카드 형태의 그림자
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
     elevation: 3,
-    marginBottom: 32, // 지도와의 간격 추가
   },
   infoRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "flex-start", // 텍스트가 길어질 경우를 대비해 상단 정렬
     paddingVertical: 4,
   },
   iconContainer: {
     width: 24,
     marginRight: 16,
-    marginTop: 2,
+    marginTop: 2, // 아이콘 위치 미세 조정
     alignItems: "center",
   },
-  infoTextContainer: { flex: 1 },
+  infoTextContainer: {
+    flex: 1,
+  },
   infoLabel: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: "#9CA3AF", // 연한 회색 라벨
     marginBottom: 2,
     fontWeight: "500",
   },
-  infoValue: { fontSize: 16, color: "#1F2937", lineHeight: 22 },
-  divider: { height: 1, backgroundColor: "#F3F4F6", marginVertical: 16 },
-
-  // [추가됨] 지도 관련 스타일
-  mapSection: {
-    marginBottom: 20,
+  infoValue: {
+    fontSize: 16,
+    color: "#1F2937", // 짙은 회색 본문
+    lineHeight: 22,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111",
-    marginBottom: 12,
-    marginLeft: 4, // 살짝 들여쓰기
-  },
-  mapContainer: {
-    height: 300, // 지도가 보일 높이 지정 (필수)
-    backgroundColor: "#E5E7EB",
-    borderRadius: 16,
-    overflow: "hidden", // 둥근 모서리 적용을 위해 필수
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+  divider: {
+    height: 1,
+    backgroundColor: "#F3F4F6", // 아주 옅은 구분선
+    marginVertical: 16,
   },
 });
