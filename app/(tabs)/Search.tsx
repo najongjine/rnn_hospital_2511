@@ -61,11 +61,12 @@ export default function Search() {
         method: "GET",
         headers: {},
       });
-
+      console.log(`# search response: `, response);
       let _data = await response.json();
+      console.log(`# search _data: `, _data);
       setKakaoPlace(_data?.data);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      console.error(e?.message ?? "");
     } finally {
       setLoading(false);
     }
