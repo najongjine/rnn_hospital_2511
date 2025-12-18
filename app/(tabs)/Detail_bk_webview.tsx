@@ -1,15 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
 import {
   Linking,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import URLModal from "../component/URLModal";
+import { WebView } from "react-native-webview";
 import { KakaoPlaceType } from "../types/types";
 
 export default function Detail() {
@@ -18,12 +18,6 @@ export default function Detail() {
   const kakaoPlace = queryString?.kakaoPlace
     ? (JSON.parse(String(queryString.kakaoPlace)) as KakaoPlaceType)
     : null;
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
-  const routeUrl = kakaoPlace
-    ? `https://map.kakao.com/link/to/${encodeURIComponent(
-        kakaoPlace?.place_name ?? ""
-      )},${kakaoPlace.y},${kakaoPlace.x}`
-    : "https://map.kakao.com";
 
   if (!kakaoPlace) {
     return (
@@ -41,90 +35,87 @@ export default function Detail() {
     if (kakaoPlace.place_url) Linking.openURL(kakaoPlace.place_url);
   };
 
+  // 지도 URL
+  const mapUrl = `https://map.kakao.com`;
+
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* 1. 헤더 섹션 (동일) */}
-        <View style={styles.headerSection}>
-          <Text style={styles.title}>{kakaoPlace.place_name}</Text>
-          <View style={styles.badgeContainer}>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {kakaoPlace.distance
-                  ? `${kakaoPlace.distance}m`
-                  : "거리 정보 없음"}
-              </Text>
-            </View>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* 1. 헤더 섹션 (동일) */}
+      <View style={styles.headerSection}>
+        <Text style={styles.title}>{kakaoPlace.place_name}</Text>
+        <View style={styles.badgeContainer}>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>
+              {kakaoPlace.distance
+                ? `${kakaoPlace.distance}m`
+                : "거리 정보 없음"}
+            </Text>
           </View>
         </View>
+      </View>
 
-        {/* 2. 액션 버튼 (동일) */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.callButton]}
-            onPress={handleCall}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="call" size={20} color="#fff" />
-            <Text style={styles.callButtonText}>전화 걸기</Text>
-          </TouchableOpacity>
+      {/* 2. 액션 버튼 (동일) */}
+      <View style={styles.actionRow}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.callButton]}
+          onPress={handleCall}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="call" size={20} color="#fff" />
+          <Text style={styles.callButtonText}>전화 걸기</Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.actionButton, styles.webButton]}
-            onPress={handleOpenWeb}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="globe-outline" size={20} color="#333" />
-            <Text style={styles.webButtonText}>홈페이지</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.webButton]}
+          onPress={handleOpenWeb}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="globe-outline" size={20} color="#333" />
+          <Text style={styles.webButtonText}>홈페이지</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* 3. 상세 정보 리스트 (동일) */}
-        <View style={styles.infoSection}>
-          {/* ... (기존 infoRow 코드들 동일) ... */}
-          <View style={styles.infoRow}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="location-outline" size={22} color="#666" />
-            </View>
-            <View style={styles.infoTextContainer}>
-              <Text style={styles.infoLabel}>주소</Text>
-              <Text style={styles.infoValue}>{kakaoPlace.address_name}</Text>
-            </View>
+      {/* 3. 상세 정보 리스트 (동일) */}
+      <View style={styles.infoSection}>
+        {/* ... (기존 infoRow 코드들 동일) ... */}
+        <View style={styles.infoRow}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="location-outline" size={22} color="#666" />
           </View>
-          {/* ... */}
+          <View style={styles.infoTextContainer}>
+            <Text style={styles.infoLabel}>주소</Text>
+            <Text style={styles.infoValue}>{kakaoPlace.address_name}</Text>
+          </View>
         </View>
+        {/* ... */}
+      </View>
 
-        {/* 지도 모달창 열기 버튼 */}
-        <View style={styles.mapSection}>
-          <TouchableOpacity
-            style={styles.openModalButton}
-            onPress={() => setIsModalOpen(true)}
-          >
-            <Ionicons
-              name="map-outline"
-              size={20}
-              color="#fff"
-              style={{ marginRight: 8 }}
+      {/* 4. [수정됨] 지도 보기 섹션 (웹/앱 분기 처리) */}
+      <View style={styles.mapSection}>
+        <Text style={styles.sectionTitle}>위치 확인</Text>
+        <View style={styles.mapContainer}>
+          {Platform.OS === "web" ? (
+            // [웹일 경우] iframe 사용
+            <iframe
+              src={mapUrl}
+              style={{ width: "100%", height: "100%", border: "none" }}
+              title="hospital-map"
             />
-            <Text style={styles.openModalButtonText}>지도 모달창 열기</Text>
-          </TouchableOpacity>
+          ) : (
+            // [앱일 경우] WebView 사용
+            <WebView
+              source={{ uri: mapUrl }}
+              style={{ flex: 1 }}
+              nestedScrollEnabled={true}
+            />
+          )}
         </View>
-        {/* 지도 모달창 열기 버튼 END */}
-      </ScrollView>
-
-      {/* 분리된 URL 모달 컴포넌트 사용 */}
-      <URLModal
-        visible={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        url={routeUrl}
-        title={kakaoPlace.place_name}
-      />
-      {/* 분리된 URL 모달 컴포넌트 사용*/}
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -140,30 +131,6 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 40,
   },
-
-  /** 모달 열기 버튼 스타일링 */
-  mapSection: {
-    marginTop: 10,
-  },
-  openModalButton: {
-    backgroundColor: "#333",
-    height: 54,
-    borderRadius: 12,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  openModalButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  /** 모달 열기 버튼 스타일링 END */
-
   errorContainer: {
     flex: 1,
     justifyContent: "center",
