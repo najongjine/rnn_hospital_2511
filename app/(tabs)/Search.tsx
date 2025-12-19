@@ -84,6 +84,9 @@ export default function Search() {
 
   return (
     <View style={styles.container}>
+      <View>
+        <Text>{JSON.stringify(location)}</Text>
+      </View>
       {/* 1. 상단 검색바 영역 */}
       <View style={styles.searchHeader}>
         <View style={styles.inputContainer}>

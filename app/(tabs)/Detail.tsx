@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons"; // 아이콘 사용
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
+  Button,
   Linking,
   ScrollView,
   StyleSheet,
@@ -23,15 +24,15 @@ export default function Detail() {
   /** 모달창 열기 관련 변수들 */
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
 
-  const myLat = 37.123456; // 예시 위도
-  const myLng = 127.123456; // 예시 경도
+  const myLat = 35.1746; // 예시 위도
+  const myLng = 126.8101; // 예시 경도
   // 이동 수단 선택 (car: 자동차, public: 대중교통, walk: 도보)
   const transportMode = "walk";
   const routeUrl =
     kakaoPlace && myLat && myLng
-      ? `https://map.kakao.com/link/by/${transportMode}/내위치,${myLat},${myLng}/${encodeURIComponent(
-          kakaoPlace.place_name ?? "도착지"
-        )},${kakaoPlace.y},${kakaoPlace.x}`
+      ? `https://map.kakao.com/link/by/${transportMode}/내위치,${myLat},${myLng}/${
+          kakaoPlace?.place_name ?? "도착지"
+        },${kakaoPlace.y},${kakaoPlace.x}`
       : "https://map.kakao.com";
   /** 모달창 열기 관련 변수들 END */
 
@@ -66,6 +67,9 @@ export default function Detail() {
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
       >
+        <View>
+          <Text>{routeUrl}</Text>
+        </View>
         {/* 1. 헤더 섹션: 병원 이름과 거리 */}
         <View style={styles.headerSection}>
           <Text style={styles.title}>{kakaoPlace.place_name}</Text>
@@ -151,6 +155,14 @@ export default function Detail() {
               </Text>
             </View>
           </View>
+        </View>
+        <View>
+          <Button
+            title="지도 모달창 열기"
+            onPress={() => {
+              setIsModalOpen(true);
+            }}
+          />
         </View>
       </ScrollView>
 
