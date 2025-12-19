@@ -1,21 +1,21 @@
 /**
  * npx expo install react-native-webview
  */
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import WebView from "react-native-webview";
 
 const { width } = Dimensions.get("window");
 
 export default function WebViewTest() {
   return (
-    <ScrollView>
+    <View style={{ flex: 1 }}>
       <View>
         <Text>웹뷰 예제</Text>
       </View>
-      <View>
-        <WebView source={{ uri: `naver.com` }} />
-      </View>
-    </ScrollView>
+
+      {/* 이제 WebView가 남은 공간을 모두 차지합니다 */}
+      <WebView source={{ uri: `https://m.naver.com` }} style={{ flex: 1 }} />
+    </View>
   );
 }
 
