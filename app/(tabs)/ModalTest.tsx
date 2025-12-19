@@ -15,17 +15,27 @@ export default function ModalTest() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Modal></Modal>
-      <ScrollView>
-        <View>
-          <Button
-            title="닫기"
-            onPress={() => {
-              setModalVisible(false);
-            }}
-          ></Button>
-        </View>
-      </ScrollView>
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
+        <ScrollView>
+          <View>
+            <Button
+              title="닫기"
+              onPress={() => {
+                setModalVisible(false);
+              }}
+            />
+          </View>
+        </ScrollView>
+      </Modal>
+
+      <View>
+        <Button
+          title="모달창 열기"
+          onPress={() => {
+            setModalVisible(true);
+          }}
+        />
+      </View>
     </View>
   );
 }
