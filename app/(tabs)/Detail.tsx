@@ -279,4 +279,28 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F4F6", // 아주 옅은 구분선
     marginVertical: 16,
   },
+
+  /** 모달 열기 버튼 스타일링 */
+  mapSection: {
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  openModalButton: {
+    backgroundColor: "#333",
+    height: 54,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  openModalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  /** 모달 열기 버튼 스타일링 END */
 });
