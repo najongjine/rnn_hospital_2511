@@ -56,98 +56,100 @@ export default function Detail() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* 1. 헤더 섹션: 병원 이름과 거리 */}
-      <View style={styles.headerSection}>
-        <Text style={styles.title}>{kakaoPlace.place_name}</Text>
-        <View style={styles.badgeContainer}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {kakaoPlace.distance
-                ? `${kakaoPlace.distance}m`
-                : "거리 정보 없음"}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* 2. 메인 액션 버튼 (전화걸기 / 웹사이트) */}
-      <View style={styles.actionRow}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.callButton]}
-          onPress={handleCall}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="call" size={20} color="#fff" />
-          <Text style={styles.callButtonText}>전화 걸기</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.actionButton, styles.webButton]}
-          onPress={handleOpenWeb}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="globe-outline" size={20} color="#333" />
-          <Text style={styles.webButtonText}>홈페이지</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 3. 상세 정보 리스트 섹션 */}
-      <View style={styles.infoSection}>
-        {/* 주소 */}
-        <View style={styles.infoRow}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="location-outline" size={22} color="#666" />
-          </View>
-          <View style={styles.infoTextContainer}>
-            <Text style={styles.infoLabel}>주소</Text>
-            <Text style={styles.infoValue}>{kakaoPlace.address_name}</Text>
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 1. 헤더 섹션: 병원 이름과 거리 */}
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>{kakaoPlace.place_name}</Text>
+          <View style={styles.badgeContainer}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {kakaoPlace.distance
+                  ? `${kakaoPlace.distance}m`
+                  : "거리 정보 없음"}
+              </Text>
+            </View>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        {/* 2. 메인 액션 버튼 (전화걸기 / 웹사이트) */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.callButton]}
+            onPress={handleCall}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="call" size={20} color="#fff" />
+            <Text style={styles.callButtonText}>전화 걸기</Text>
+          </TouchableOpacity>
 
-        {/* 전화번호 (텍스트 뷰) */}
-        <View style={styles.infoRow}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="call-outline" size={22} color="#666" />
-          </View>
-          <View style={styles.infoTextContainer}>
-            <Text style={styles.infoLabel}>전화번호</Text>
-            <Text style={styles.infoValue}>
-              {kakaoPlace.phone || "정보 없음"}
-            </Text>
-          </View>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.webButton]}
+            onPress={handleOpenWeb}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="globe-outline" size={20} color="#333" />
+            <Text style={styles.webButtonText}>홈페이지</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.divider} />
-
-        {/* 홈페이지 (텍스트 뷰) */}
-        <View style={styles.infoRow}>
-          <View style={styles.iconContainer}>
-            <Ionicons
-              name="information-circle-outline"
-              size={22}
-              color="#666"
-            />
+        {/* 3. 상세 정보 리스트 섹션 */}
+        <View style={styles.infoSection}>
+          {/* 주소 */}
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="location-outline" size={22} color="#666" />
+            </View>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoLabel}>주소</Text>
+              <Text style={styles.infoValue}>{kakaoPlace.address_name}</Text>
+            </View>
           </View>
-          <View style={styles.infoTextContainer}>
-            <Text style={styles.infoLabel}>상세 정보</Text>
-            <Text
-              style={styles.infoValue}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {kakaoPlace.place_url || "정보 없음"}
-            </Text>
+
+          <View style={styles.divider} />
+
+          {/* 전화번호 (텍스트 뷰) */}
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="call-outline" size={22} color="#666" />
+            </View>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoLabel}>전화번호</Text>
+              <Text style={styles.infoValue}>
+                {kakaoPlace.phone || "정보 없음"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          {/* 홈페이지 (텍스트 뷰) */}
+          <View style={styles.infoRow}>
+            <View style={styles.iconContainer}>
+              <Ionicons
+                name="information-circle-outline"
+                size={22}
+                color="#666"
+              />
+            </View>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoLabel}>상세 정보</Text>
+              <Text
+                style={styles.infoValue}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {kakaoPlace.place_url || "정보 없음"}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -279,28 +281,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F4F6", // 아주 옅은 구분선
     marginVertical: 16,
   },
-
-  /** 모달 열기 버튼 스타일링 */
-  mapSection: {
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  openModalButton: {
-    backgroundColor: "#333",
-    height: 54,
-    borderRadius: 12,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  openModalButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  /** 모달 열기 버튼 스타일링 END */
 });
