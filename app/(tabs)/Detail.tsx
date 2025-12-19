@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import URLModal from "../component/URLModal";
 import { KakaoPlaceType } from "../types/types";
 
 export default function Detail() {
@@ -152,6 +153,15 @@ export default function Detail() {
           </View>
         </View>
       </ScrollView>
+
+      {/* 분리된 URL 모달 컴포넌트 사용 */}
+      <URLModal
+        visible={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        url={routeUrl}
+        title={kakaoPlace.place_name}
+      />
+      {/* 분리된 URL 모달 컴포넌트 사용*/}
     </View> // 모달창 보이게 하는 최상단 View END
   );
 }
