@@ -19,6 +19,7 @@ export default function Detail() {
     ? (JSON.parse(String(queryString.kakaoPlace)) as KakaoPlaceType)
     : null;
 
+  /** 모달창 열기 관련 변수들 */
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
 
   const myLat = 37.123456; // 예시 위도
@@ -31,6 +32,7 @@ export default function Detail() {
           kakaoPlace.place_name ?? "도착지"
         )},${kakaoPlace.y},${kakaoPlace.x}`
       : "https://map.kakao.com";
+  /** 모달창 열기 관련 변수들 END */
 
   // 데이터가 없을 경우 예외 처리 화면
   if (!kakaoPlace) {
@@ -56,6 +58,7 @@ export default function Detail() {
   };
 
   return (
+    // 모달창 보이게 하는 최상단 View
     <View style={{ flex: 1 }}>
       <ScrollView
         style={styles.container}
@@ -149,7 +152,7 @@ export default function Detail() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </View> // 모달창 보이게 하는 최상단 View END
   );
 }
 
