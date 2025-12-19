@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
   /** 모달 열기 버튼 스타일링 */
   mapSection: {
     marginTop: 10,
+    marginBottom: 20,
   },
   openModalButton: {
     backgroundColor: "#333",
@@ -241,10 +242,6 @@ const styles = StyleSheet.create({
   infoValue: { fontSize: 16, color: "#1F2937", lineHeight: 22 },
   divider: { height: 1, backgroundColor: "#F3F4F6", marginVertical: 16 },
 
-  // [추가됨] 지도 관련 스타일
-  mapSection: {
-    marginBottom: 20,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
