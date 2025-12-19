@@ -16,7 +16,6 @@ export default function ModalTest() {
   return (
     <View style={{ flex: 1 }}>
       <Modal></Modal>
-
       <ScrollView>
         <View>
           <Button
