@@ -15,15 +15,20 @@ import { KakaoPlaceType } from "../types/types";
 export default function Detail() {
   // ... (이전 코드와 동일: 데이터 파싱 및 에러 처리) ...
   const queryString = useLocalSearchParams();
+  const myLat = 37.123456; // 예시 위도
+  const myLng = 127.123456; // 예시 경도
+  // 이동 수단 선택 (car: 자동차, public: 대중교통, walk: 도보)
+  const transportMode = "walk";
   const kakaoPlace = queryString?.kakaoPlace
     ? (JSON.parse(String(queryString.kakaoPlace)) as KakaoPlaceType)
     : null;
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
-  const routeUrl = kakaoPlace
-    ? `https://map.kakao.com/link/to/${encodeURIComponent(
-        kakaoPlace?.place_name ?? ""
-      )},${kakaoPlace.y},${kakaoPlace.x}`
-    : "https://map.kakao.com";
+  const routeUrl =
+    kakaoPlace && myLat && myLng
+      ? `https://map.kakao.com/link/by/${transportMode}/내위치,${myLat},${myLng}/${encodeURIComponent(
+          kakaoPlace.place_name ?? "도착지"
+        )},${kakaoPlace.y},${kakaoPlace.x}`
+      : "https://map.kakao.com";
 
   if (!kakaoPlace) {
     return (
