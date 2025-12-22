@@ -1,6 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Platform, // 1. Platform 모듈 추가
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { WebView } from "react-native-webview";
 
 interface ModalProps {
@@ -34,11 +41,20 @@ export default function URLModal({
 
         {/* 웹뷰 영역 */}
         <View style={styles.webviewContainer}>
-          <WebView
-            source={{ uri: url }}
-            style={styles.webview}
-            startInLoadingState={true}
-          />
+          {/* 2. 플랫폼에 따른 분기 처리 */}
+          {Platform.OS === "web" ? (
+            <iframe
+              src={url}
+              style={{ width: "100%", height: "100%", border: "none" }}
+              title={title}
+            />
+          ) : (
+            <WebView
+              source={{ uri: url }}
+              style={styles.webview}
+              startInLoadingState={true}
+            />
+          )}
         </View>
       </View>
     </Modal>
@@ -71,6 +87,8 @@ const styles = StyleSheet.create({
   },
   webviewContainer: {
     flex: 1,
+    // 웹에서 iframe이 부모 컨테이너 크기를 채우게 하려면 아래 스타일이 중요할 수 있음
+    overflow: "hidden",
   },
   webview: {
     flex: 1,
