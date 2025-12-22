@@ -154,7 +154,12 @@ export default function Search() {
                 onPress={() => {
                   router.push({
                     pathname: "/Detail",
-                    params: { kakaoPlace: JSON.stringify(item) },
+                    params: {
+                      kakaoPlace: JSON.stringify(item),
+                      locationData: JSON.stringify(location),
+                      myLat: location?.coords?.latitude ?? 0,
+                      myLng: location?.coords?.longitude ?? 0,
+                    },
                   });
                 }}
               >

@@ -24,8 +24,8 @@ export default function Detail() {
   /** 모달창 열기 관련 변수들 */
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
 
-  const myLat = 35.1746; // 예시 위도
-  const myLng = 126.8101; // 예시 경도
+  const myLat = queryString?.myLat ?? 0; // 예시 위도
+  const myLng = queryString?.myLng ?? 0; // 예시 경도
   // 이동 수단 선택 (car: 자동차, public: 대중교통, walk: 도보)
   const transportMode = "walk";
   const routeUrl =
