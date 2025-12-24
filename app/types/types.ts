@@ -11,4 +11,7 @@ export interface KakaoPlaceType {
   road_address_name?: string;
   x?: number;
   y?: number;
+  rating?: number;
+  congestion_level?: number;
+  predicted_recommendation_score?: number;
 }
