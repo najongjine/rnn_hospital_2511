@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons"; // 아이콘 사용을 위해 추가
+import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react"; // useMemo 추가
 import {
   ActivityIndicator,
   Dimensions,
@@ -26,10 +26,33 @@ export default function Search() {
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [kakaoPlace, setKakaoPlace] = useState<KakaoPlaceType[]>([]);
-  const [loading, setLoading] = useState(false); // 로딩 상태 추가
-
-  // 검색어 상태
+  const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>(searchKeyword ?? "");
+
+  // [추가] 정렬 상태 관리 ('distance' | 'score')
+  const [sortBy, setSortBy] = useState<"distance" | "score">("distance");
+
+  // [추가] 정렬 로직 (kakaoPlace나 sortBy가 변경될 때마다 실행)
+  const sortedKakaoPlace = useMemo(() => {
+    // 원본 배열 복사 후 정렬
+    const sorted = [...kakaoPlace];
+
+    if (sortBy === "distance") {
+      // 거리순: distance 오름차순 (작은게 위로)
+      return sorted.sort((a, b) => {
+        const distA = Number(a.distance) || Infinity; // 값이 없으면 뒤로 보냄
+        const distB = Number(b.distance) || Infinity;
+        return distA - distB;
+      });
+    } else {
+      // 추천도순: predicted_recommendation_score 내림차순 (큰게 위로)
+      return sorted.sort((a, b) => {
+        const scoreA = Number(a.predicted_recommendation_score) || 0;
+        const scoreB = Number(b.predicted_recommendation_score) || 0;
+        return scoreB - scoreA;
+      });
+    }
+  }, [kakaoPlace, sortBy]);
 
   async function getCurrentLocation() {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -84,9 +107,9 @@ export default function Search() {
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text>{JSON.stringify(location)}</Text>
-      </View>
+      {/* 디버깅용 텍스트 (필요 시 주석 처리) */}
+      {/* <View><Text>{JSON.stringify(location)}</Text></View> */}
+
       {/* 1. 상단 검색바 영역 */}
       <View style={styles.searchHeader}>
         <View style={styles.inputContainer}>
@@ -102,7 +125,7 @@ export default function Search() {
             placeholderTextColor="#AAA"
             value={searchText}
             onChangeText={setSearchText}
-            onSubmitEditing={onSearch} // 키보드 완료 버튼 누를 시 검색
+            onSubmitEditing={onSearch}
             returnKeyType="search"
           />
         </View>
@@ -112,6 +135,44 @@ export default function Search() {
           activeOpacity={0.8}
         >
           <Text style={styles.searchButtonText}>검색</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* [추가] 정렬 필터 버튼 영역 */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            sortBy === "distance" && styles.filterButtonActive,
+          ]}
+          onPress={() => setSortBy("distance")}
+          activeOpacity={0.7}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              sortBy === "distance" && styles.filterTextActive,
+            ]}
+          >
+            거리순
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            sortBy === "score" && styles.filterButtonActive,
+          ]}
+          onPress={() => setSortBy("score")}
+          activeOpacity={0.7}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              sortBy === "score" && styles.filterTextActive,
+            ]}
+          >
+            추천도순
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -135,7 +196,7 @@ export default function Search() {
         )}
 
         {/* 결과가 없을 때 안내 문구 */}
-        {!loading && kakaoPlace.length === 0 && (
+        {!loading && sortedKakaoPlace.length === 0 && (
           <View style={styles.emptyContainer}>
             <Ionicons name="medkit-outline" size={48} color="#DDD" />
             <Text style={styles.emptyText}>검색 결과가 없습니다.</Text>
@@ -143,9 +204,9 @@ export default function Search() {
           </View>
         )}
 
-        {/* 리스트 아이템 */}
-        {kakaoPlace?.length > 0 &&
-          kakaoPlace.map((item, index) => {
+        {/* 리스트 아이템 (kakaoPlace -> sortedKakaoPlace로 변경) */}
+        {sortedKakaoPlace?.length > 0 &&
+          sortedKakaoPlace.map((item, index) => {
             return (
               <TouchableOpacity
                 key={index}
@@ -163,6 +224,7 @@ export default function Search() {
                   });
                 }}
               >
+                {/* 카드 헤더 내용 (UI 기존 유지하되 데이터 연동) */}
                 <View style={styles.cardHeader}>
                   <Text style={styles.placeName} numberOfLines={1}>
                     {item?.place_name}
@@ -172,24 +234,30 @@ export default function Search() {
                       {item?.distance ? `${item.distance}m` : "거리정보 없음"}
                     </Text>
                   </View>
-                  <View>
-                    <Text>평점: {item?.rating ?? 0}</Text>
-                  </View>
-                  <View>
-                    <Text>
-                      혼잡도: {item?.congestion_level == 0 && "손님적음"}
-                      {item?.congestion_level == 0 && "손님보통"}
-                      {item?.congestion_level == 0 && "손님많음"}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text>
-                      추천점수: {item?.predicted_recommendation_score ?? 0}
-                    </Text>
-                  </View>
                 </View>
 
-                <View style={styles.infoRow}>
+                {/* 상세 정보 텍스트들 */}
+                <View style={{ marginTop: 8 }}>
+                  <Text style={{ fontSize: 13, color: "#444" }}>
+                    평점:{" "}
+                    <Text style={{ fontWeight: "bold" }}>
+                      {item?.rating ?? 0}
+                    </Text>
+                  </Text>
+                  <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
+                    혼잡도: {(item?.congestion_level ?? 0) <= 0 && "손님적음"}
+                    {item?.congestion_level == 1 && "손님보통"}
+                    {(item?.congestion_level ?? 0) >= 2 && "손님많음"}
+                  </Text>
+                  <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
+                    추천점수:{" "}
+                    <Text style={{ fontWeight: "bold", color: "#1E88E5" }}>
+                      {item?.predicted_recommendation_score ?? 0}
+                    </Text>
+                  </Text>
+                </View>
+
+                <View style={[styles.infoRow, { marginTop: 10 }]}>
                   <Ionicons
                     name="location-outline"
                     size={14}
@@ -202,9 +270,6 @@ export default function Search() {
                       "주소 정보 없음"}
                   </Text>
                 </View>
-
-                {/* 전화번호가 있다면 표시 (데이터에 phone이 있다고 가정 시 추가 가능) */}
-                {/* <Text style={styles.phoneText}>{item.phone}</Text> */}
               </TouchableOpacity>
             );
           })}
@@ -224,10 +289,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 10,
     backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#EEE",
   },
   inputContainer: {
     flex: 1,
@@ -249,7 +313,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   searchButton: {
-    backgroundColor: "#1E88E5", // 메인 블루 컬러
+    backgroundColor: "#1E88E5",
     paddingHorizontal: 16,
     height: 46,
     borderRadius: 12,
@@ -259,6 +323,38 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: "#fff",
     fontSize: 15,
+    fontWeight: "600",
+  },
+
+  // [추가] Filter Styles (정렬 버튼)
+  filterContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEE",
+  },
+  filterButton: {
+    marginRight: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    backgroundColor: "#fff",
+  },
+  filterButtonActive: {
+    borderColor: "#1E88E5",
+    backgroundColor: "#1E88E5",
+  },
+  filterText: {
+    fontSize: 13,
+    color: "#666",
+    fontWeight: "500",
+  },
+  filterTextActive: {
+    color: "#fff",
     fontWeight: "600",
   },
 
@@ -304,7 +400,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 16,
-    // 카드 그림자
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -317,13 +412,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 4,
   },
   placeName: {
     fontSize: 18,
     fontWeight: "700",
     color: "#333",
-    flex: 1, // 이름이 길 경우 말줄임표 처리를 위해 flex 사용
+    flex: 1,
     marginRight: 10,
   },
   distanceBadge: {
