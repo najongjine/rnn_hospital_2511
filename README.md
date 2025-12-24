@@ -1,3 +1,23 @@
+# 빌드 하는법
+
+eas build:configure
+명령어 쳐주고, 뭐 물어보면 그냥 엔터
+eas.json 이 생길거임
+
+eas.json 안에 들어가서
+"preview": {
+"distribution": "internal",
+"android": {
+"buildType": "apk"
+}
+},
+
+이런식으로 수정.
+
+eas build --platform android --profile preview
+명령어 쳐주고, 뭐 물어보면 그냥 엔터.
+build que 들어가면 끝.
+
 npx expo install react-native-web react-dom
 
 # Welcome to your Expo app 👋
