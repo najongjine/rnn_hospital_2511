@@ -26,26 +26,22 @@ export default function Search() {
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [kakaoPlace, setKakaoPlace] = useState<KakaoPlaceType[]>([]);
+
+  // 로딩 상태 (기본값 false)
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState<string>(searchKeyword ?? "");
-
-  // [추가] 정렬 상태 관리 ('distance' | 'score')
   const [sortBy, setSortBy] = useState<"distance" | "score">("distance");
 
-  // [추가] 정렬 로직 (kakaoPlace나 sortBy가 변경될 때마다 실행)
+  // 정렬 로직
   const sortedKakaoPlace = useMemo(() => {
-    // 원본 배열 복사 후 정렬
     const sorted = [...kakaoPlace];
-
     if (sortBy === "distance") {
-      // 거리순: distance 오름차순 (작은게 위로)
       return sorted.sort((a, b) => {
-        const distA = Number(a.distance) || Infinity; // 값이 없으면 뒤로 보냄
+        const distA = Number(a.distance) || Infinity;
         const distB = Number(b.distance) || Infinity;
         return distA - distB;
       });
     } else {
-      // 추천도순: predicted_recommendation_score 내림차순 (큰게 위로)
       return sorted.sort((a, b) => {
         const scoreA = Number(a.predicted_recommendation_score) || 0;
         const scoreB = Number(b.predicted_recommendation_score) || 0;
@@ -73,7 +69,7 @@ export default function Search() {
     location: Location.LocationObject | null = null
   ) {
     if (!query) return;
-    setLoading(true);
+    setLoading(true); // 로딩 시작
     try {
       const params = new URLSearchParams();
       params.append("query", String(query));
@@ -91,7 +87,7 @@ export default function Search() {
     } catch (e: any) {
       console.error(e?.message ?? "");
     } finally {
-      setLoading(false);
+      setLoading(false); // 로딩 종료
     }
   }
 
@@ -107,9 +103,6 @@ export default function Search() {
 
   return (
     <View style={styles.container}>
-      {/* 디버깅용 텍스트 (필요 시 주석 처리) */}
-      {/* <View><Text>{JSON.stringify(location)}</Text></View> */}
-
       {/* 1. 상단 검색바 영역 */}
       <View style={styles.searchHeader}>
         <View style={styles.inputContainer}>
@@ -138,7 +131,7 @@ export default function Search() {
         </TouchableOpacity>
       </View>
 
-      {/* [추가] 정렬 필터 버튼 영역 */}
+      {/* 정렬 필터 버튼 영역 */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
@@ -183,101 +176,104 @@ export default function Search() {
         </View>
       )}
 
-      {/* 2. 결과 리스트 영역 */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* 로딩 인디케이터 */}
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#1E88E5" />
-          </View>
-        )}
+      {/* 2. 결과 리스트 영역 (로딩 처리 변경) */}
+      {loading ? (
+        // [변경] 로딩 중일 때 보여줄 전체 화면 뷰
+        <View style={styles.fullLoadingContainer}>
+          <ActivityIndicator size="large" color="#1E88E5" />
+          <Text style={styles.loadingText}>
+            데이터를 분석하고 있습니다...{"\n"}잠시만 기다려주세요.
+          </Text>
+        </View>
+      ) : (
+        // 로딩이 아닐 때 리스트 표시
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* 결과가 없을 때 안내 문구 */}
+          {sortedKakaoPlace.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="medkit-outline" size={48} color="#DDD" />
+              <Text style={styles.emptyText}>검색 결과가 없습니다.</Text>
+              <Text style={styles.emptySubText}>
+                다른 키워드로 검색해보세요.
+              </Text>
+            </View>
+          )}
 
-        {/* 결과가 없을 때 안내 문구 */}
-        {!loading && sortedKakaoPlace.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="medkit-outline" size={48} color="#DDD" />
-            <Text style={styles.emptyText}>검색 결과가 없습니다.</Text>
-            <Text style={styles.emptySubText}>다른 키워드로 검색해보세요.</Text>
-          </View>
-        )}
+          {/* 리스트 아이템 */}
+          {sortedKakaoPlace?.length > 0 &&
+            sortedKakaoPlace.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={0.7}
+                  style={styles.card}
+                  onPress={() => {
+                    router.push({
+                      pathname: "/Detail",
+                      params: {
+                        kakaoPlace: JSON.stringify(item),
+                        locationData: JSON.stringify(location),
+                        myLat: location?.coords?.latitude ?? 0,
+                        myLng: location?.coords?.longitude ?? 0,
+                      },
+                    });
+                  }}
+                >
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.placeName} numberOfLines={1}>
+                      {item?.place_name}
+                    </Text>
+                    <View style={styles.distanceBadge}>
+                      <Text style={styles.distanceText}>
+                        {item?.distance ? `${item.distance}m` : "거리정보 없음"}
+                      </Text>
+                    </View>
+                  </View>
 
-        {/* 리스트 아이템 (kakaoPlace -> sortedKakaoPlace로 변경) */}
-        {sortedKakaoPlace?.length > 0 &&
-          sortedKakaoPlace.map((item, index) => {
-            return (
-              <TouchableOpacity
-                key={index}
-                activeOpacity={0.7}
-                style={styles.card}
-                onPress={() => {
-                  router.push({
-                    pathname: "/Detail",
-                    params: {
-                      kakaoPlace: JSON.stringify(item),
-                      locationData: JSON.stringify(location),
-                      myLat: location?.coords?.latitude ?? 0,
-                      myLng: location?.coords?.longitude ?? 0,
-                    },
-                  });
-                }}
-              >
-                {/* 카드 헤더 내용 (UI 기존 유지하되 데이터 연동) */}
-                <View style={styles.cardHeader}>
-                  <Text style={styles.placeName} numberOfLines={1}>
-                    {item?.place_name}
-                  </Text>
-                  <View style={styles.distanceBadge}>
-                    <Text style={styles.distanceText}>
-                      {item?.distance ? `${item.distance}m` : "거리정보 없음"}
+                  <View style={{ marginTop: 8 }}>
+                    <Text style={{ fontSize: 13, color: "#444" }}>
+                      평점:{" "}
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item?.rating ?? 0}
+                      </Text>
+                    </Text>
+                    <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
+                      혼잡도: {(item?.congestion_level ?? 0) <= 0 && "손님적음"}
+                      {item?.congestion_level == 1 && "손님보통"}
+                      {(item?.congestion_level ?? 0) >= 2 && "손님많음"}
+                    </Text>
+                    <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
+                      추천점수:{" "}
+                      <Text style={{ fontWeight: "bold", color: "#1E88E5" }}>
+                        {item?.predicted_recommendation_score ?? 0}
+                      </Text>
                     </Text>
                   </View>
-                </View>
 
-                {/* 상세 정보 텍스트들 */}
-                <View style={{ marginTop: 8 }}>
-                  <Text style={{ fontSize: 13, color: "#444" }}>
-                    평점:{" "}
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item?.rating ?? 0}
+                  <View style={[styles.infoRow, { marginTop: 10 }]}>
+                    <Ionicons
+                      name="location-outline"
+                      size={14}
+                      color="#666"
+                      style={{ marginTop: 2 }}
+                    />
+                    <Text style={styles.addressText} numberOfLines={1}>
+                      {item?.road_address_name ||
+                        item?.address_name ||
+                        "주소 정보 없음"}
                     </Text>
-                  </Text>
-                  <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
-                    혼잡도: {(item?.congestion_level ?? 0) <= 0 && "손님적음"}
-                    {item?.congestion_level == 1 && "손님보통"}
-                    {(item?.congestion_level ?? 0) >= 2 && "손님많음"}
-                  </Text>
-                  <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
-                    추천점수:{" "}
-                    <Text style={{ fontWeight: "bold", color: "#1E88E5" }}>
-                      {item?.predicted_recommendation_score ?? 0}
-                    </Text>
-                  </Text>
-                </View>
-
-                <View style={[styles.infoRow, { marginTop: 10 }]}>
-                  <Ionicons
-                    name="location-outline"
-                    size={14}
-                    color="#666"
-                    style={{ marginTop: 2 }}
-                  />
-                  <Text style={styles.addressText} numberOfLines={1}>
-                    {item?.road_address_name ||
-                      item?.address_name ||
-                      "주소 정보 없음"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-      </ScrollView>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+        </ScrollView>
+      )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -441,5 +437,19 @@ const styles = StyleSheet.create({
     color: "#666",
     marginLeft: 4,
     flex: 1,
+  },
+  // [추가] 리스트 영역을 꽉 채우는 로딩 스타일
+  fullLoadingContainer: {
+    flex: 1, // 남은 공간을 전부 차지
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F8F9FA",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 15,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 22,
   },
 });
