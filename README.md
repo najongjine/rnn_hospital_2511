@@ -1,5 +1,8 @@
 # 빌드 하는법
 
+.env.development 복붙해서 하나 더 만들고,
+하나더 복사된 놈은 .env로 파일이름 수정해주기
+
 eas build:configure
 명령어 쳐주고, 뭐 물어보면 그냥 엔터
 eas.json 이 생길거임
