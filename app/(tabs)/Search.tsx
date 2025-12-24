@@ -172,6 +172,21 @@ export default function Search() {
                       {item?.distance ? `${item.distance}m` : "거리정보 없음"}
                     </Text>
                   </View>
+                  <View>
+                    <Text>평점: {item?.rating ?? 0}</Text>
+                  </View>
+                  <View>
+                    <Text>
+                      혼잡도: {item?.congestion_level == 0 && "손님적음"}
+                      {item?.congestion_level == 0 && "손님보통"}
+                      {item?.congestion_level == 0 && "손님많음"}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text>
+                      추천점수: {item?.predicted_recommendation_score ?? 0}
+                    </Text>
+                  </View>
                 </View>
 
                 <View style={styles.infoRow}>
