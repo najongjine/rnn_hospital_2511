@@ -80,9 +80,7 @@ export default function Search() {
         method: "GET",
         headers: {},
       });
-      console.log(`# search response: `, response);
       let _data = await response.json();
-      console.log(`# search _data: `, _data);
       setKakaoPlace(_data?.data);
     } catch (e: any) {
       console.error(e?.message ?? "");
@@ -248,7 +246,7 @@ export default function Search() {
                     <Text style={{ fontSize: 13, color: "#444", marginTop: 2 }}>
                       추천점수:{" "}
                       <Text style={{ fontWeight: "bold", color: "#1E88E5" }}>
-                        {item?.predicted_recommendation_score ?? 0}
+                        {(item?.predicted_recommendation_score ?? 0).toFixed(2)}
                       </Text>
                     </Text>
                   </View>
